@@ -22,12 +22,7 @@ pub async fn run(
 
             async move {
                 if !throttle_status.is_success() {
-                    let response: Result<http::Response<entity::GatewayBody>, http::Error> =
-                        http::Response::builder()
-                            .status(throttle_status)
-                            .body(entity::GatewayBody::Empty);
-                    log::info!("response = {:?}", response);
-                    return response;
+                    return entity::get_gateway_response(throttle_status);
                 }
 
                 let route_stream: tokio::net::TcpStream = tokio::net::TcpStream::connect(addr)
@@ -64,9 +59,7 @@ pub async fn run(
         Ok(res) => return Ok(res),
         Err(err) => {
             log::error!("Failed to bind a connection with a service: {:?}", err);
-            return Err(entity::GatewayError::HttpStatus(
-                http::status::StatusCode::INTERNAL_SERVER_ERROR,
-            ));
+            return Err(entity::GatewayError::from(err));
         }
     }
 }
