@@ -92,7 +92,7 @@ pub fn run(
     headers: &hyper::HeaderMap,
 ) -> Result<http::StatusCode, rusqlite::Error> {
     let api_key: Option<&http::HeaderValue> = headers.get("api-key");
-    if api_key == None {
+    if api_key.is_none() {
         log::error!("api-key in header is required");
         return Ok(http::StatusCode::BAD_REQUEST);
     }
@@ -115,7 +115,7 @@ pub fn run(
         "INSERT INTO visitor_limits (visitor_id, limit_id)
         VALUES (?1, 1)
         ON CONFLICT (visitor_id, limit_id) DO UPDATE SET count = count + 1;",
-        &[api_key],
+        [api_key],
     ) {
         log::error!("{}", err);
         return Err(err);

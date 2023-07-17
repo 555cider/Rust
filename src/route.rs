@@ -16,7 +16,7 @@ pub async fn run(
 
             let throttle_status: http::StatusCode = throttle::run(
                 &throttle_pool_clone.lock().unwrap().get().unwrap(),
-                &request.headers(),
+                request.headers(),
             )
             .unwrap();
             log::info!("throttle_status = {:?}", throttle_status);
@@ -51,7 +51,7 @@ pub async fn run(
                         .status(http::StatusCode::OK)
                         .body(entity::GatewayBody::Incoming(response_body.into_body()));
                 log::info!("response = {:?}", response);
-                return response;
+                response
             }
         });
 
@@ -59,17 +59,17 @@ pub async fn run(
         .serve_connection(gateway_stream, service_fn)
         .await
     {
-        Ok(res) => return Ok(res),
+        Ok(res) => Ok(res),
         Err(err) => {
             log::error!("Failed to bind a connection with a service: {:?}", err);
-            return Err(entity::GatewayError::from(err));
+            Err(entity::GatewayError::from(err))
         }
     }
 }
 
 pub fn route_request(
     request: http::Request<hyper::body::Incoming>,
-    route_config_arr: &Vec<config::Route>,
+    route_config_arr: &[config::Route],
 ) -> (http::Request<hyper::body::Incoming>, SocketAddr) {
     log::info!("request = {:?}", &request);
 
@@ -83,10 +83,10 @@ pub fn route_request(
     ));
     log::info!("Routed to {}://{:?}", route_config.scheme, &route_addr);
 
-    return (
+    (
         build_request(request, route_config).expect("Failed to create a routing request!"),
         route_addr,
-    );
+    )
 }
 
 pub fn build_request(

@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use serde_yaml;
 use std::{fs::File, io::Read};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -28,6 +27,6 @@ pub fn load_config(path: &str) -> GatewayConfig {
     serde_yaml::from_str(&contents).expect("Failed to parse the configuration file!")
 }
 
-pub fn get_route<'a>(path: &str, route: &'a Vec<Route>) -> Option<&'a Route> {
+pub fn get_route<'a>(path: &str, route: &'a [Route]) -> Option<&'a Route> {
     route.iter().find(|c: &&Route| path.starts_with(&c.path))
 }

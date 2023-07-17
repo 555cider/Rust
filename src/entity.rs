@@ -22,7 +22,7 @@ impl hyper::body::Body for GatewayBody {
             Self::Empty => Poll::Ready(None),
             Self::Incoming(incoming) => Pin::new(incoming)
                 .poll_frame(cx)
-                .map_err(|err: hyper::Error| GatewayError::from(err)),
+                .map_err(GatewayError::from),
         }
     }
 }
@@ -36,5 +36,5 @@ pub fn get_gateway_response(
         .status(status_code)
         .body(GatewayBody::Empty);
     log::info!("response = {:?}", response);
-    return response;
+    response
 }
