@@ -97,7 +97,6 @@ pub fn run(
         return Ok(http::StatusCode::BAD_REQUEST);
     }
     let api_key: &str = api_key.unwrap().to_str().unwrap();
-    log::info!("api-key = {:?}", api_key);
 
     let has_visitor: isize = throttle_conn
         .query_row(

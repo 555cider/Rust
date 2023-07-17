@@ -1,11 +1,14 @@
+use std::{
+    net::{IpAddr, SocketAddr},
+    sync::{Arc, Mutex},
+};
+
 use crate::{config, entity, throttle};
 
 pub async fn run(
     gateway_stream: tokio::net::TcpStream,
     route_config_arr_clone: Vec<config::Route>,
-    throttle_pool_clone: std::sync::Arc<
-        std::sync::Mutex<r2d2::Pool<r2d2_sqlite::SqliteConnectionManager>>,
-    >,
+    throttle_pool_clone: Arc<Mutex<r2d2::Pool<r2d2_sqlite::SqliteConnectionManager>>>,
 ) -> Result<(), entity::GatewayError> {
     let service_fn =
         hyper::service::service_fn(move |request: http::Request<hyper::body::Incoming>| {
@@ -67,19 +70,15 @@ pub async fn run(
 pub fn route_request(
     request: http::Request<hyper::body::Incoming>,
     route_config_arr: &Vec<config::Route>,
-) -> (http::Request<hyper::body::Incoming>, std::net::SocketAddr) {
+) -> (http::Request<hyper::body::Incoming>, SocketAddr) {
     log::info!("request = {:?}", &request);
 
     let route_config: config::Route = config::get_route(request.uri().path(), route_config_arr)
         .expect("Failed to get the routing configuration for the request!")
         .clone();
 
-    let route_addr: std::net::SocketAddr = std::net::SocketAddr::from((
-        route_config
-            .authority
-            .host
-            .parse::<std::net::IpAddr>()
-            .unwrap(),
+    let route_addr: SocketAddr = SocketAddr::from((
+        route_config.authority.host.parse::<IpAddr>().unwrap(),
         route_config.authority.port.parse::<u16>().unwrap(),
     ));
     log::info!("Routed to {}://{:?}", route_config.scheme, &route_addr);

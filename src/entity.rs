@@ -1,3 +1,9 @@
+use std::{
+    error::Error,
+    pin::Pin,
+    task::{Context, Poll},
+};
+
 #[derive(Debug)]
 pub enum GatewayBody {
     Empty,
@@ -9,19 +15,19 @@ impl hyper::body::Body for GatewayBody {
     type Error = GatewayError;
 
     fn poll_frame(
-        self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Option<Result<hyper::body::Frame<Self::Data>, Self::Error>>> {
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<Option<Result<hyper::body::Frame<Self::Data>, Self::Error>>> {
         match &mut *self.get_mut() {
-            Self::Empty => std::task::Poll::Ready(None),
-            Self::Incoming(incoming) => std::pin::Pin::new(incoming)
+            Self::Empty => Poll::Ready(None),
+            Self::Incoming(incoming) => Pin::new(incoming)
                 .poll_frame(cx)
                 .map_err(|err: hyper::Error| GatewayError::from(err)),
         }
     }
 }
 
-pub type GatewayError = Box<dyn std::error::Error + Send + Sync + 'static>;
+pub type GatewayError = Box<dyn Error + Send + Sync + 'static>;
 
 pub fn get_gateway_response(
     status_code: http::StatusCode,

@@ -1,3 +1,8 @@
+use std::{
+    net::SocketAddr,
+    sync::{Arc, Mutex},
+};
+
 mod config;
 mod entity;
 mod logger;
@@ -14,12 +19,11 @@ async fn main() {
     let route_config_arr: Vec<config::Route> = gateway_config.route;
 
     log::info!("Initialize the throttle");
-    let throttle_pool: std::sync::Arc<
-        std::sync::Mutex<r2d2::Pool<r2d2_sqlite::SqliteConnectionManager>>,
-    > = throttle::init_throttle().expect("Failed to initialize the throttle!");
+    let throttle_pool: Arc<Mutex<r2d2::Pool<r2d2_sqlite::SqliteConnectionManager>>> =
+        throttle::init_throttle().expect("Failed to initialize the throttle!");
 
     log::info!("Create the TCP listener");
-    let gateway_addr: std::net::SocketAddr = std::net::SocketAddr::from(([127, 0, 0, 1], 8080));
+    let gateway_addr: SocketAddr = SocketAddr::from(([127, 0, 0, 1], 8080));
     let gateway_listener: tokio::net::TcpListener = tokio::net::TcpListener::bind(gateway_addr)
         .await
         .expect("Failed to create the TCP listener!");
