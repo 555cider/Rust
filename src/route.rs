@@ -7,7 +7,7 @@ use crate::{config, entity, throttle};
 
 pub async fn run(
     gateway_stream: tokio::net::TcpStream,
-    route_config_arr_clone: Vec<config::Route>,
+    route_config_arr_clone: Arc<[config::Route]>,
     throttle_pool_clone: Arc<Mutex<r2d2::Pool<r2d2_sqlite::SqliteConnectionManager>>>,
 ) -> Result<(), entity::GatewayError> {
     let service_fn =

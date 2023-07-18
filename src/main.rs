@@ -16,7 +16,7 @@ async fn main() {
 
     log::info!("Load the configuation");
     let gateway_config: config::GatewayConfig = config::load_config("config.yaml");
-    let route_config_arr: Vec<config::Route> = gateway_config.route;
+    let route_config_arr: Arc<[config::Route]> = gateway_config.route;
 
     log::info!("Initialize the throttle");
     let throttle_pool: Arc<Mutex<r2d2::Pool<r2d2_sqlite::SqliteConnectionManager>>> =

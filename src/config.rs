@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
-use std::{fs::File, io::Read};
+use std::{fs::File, io::Read, sync::Arc};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct GatewayConfig {
-    pub route: Vec<Route>,
+    pub route: Arc<[Route]>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
