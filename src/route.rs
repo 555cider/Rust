@@ -10,18 +10,18 @@ pub async fn run(
     route_config_arr_clone: Arc<[config::Route]>,
     throttle_pool_clone: Arc<Mutex<r2d2::Pool<r2d2_sqlite::SqliteConnectionManager>>>,
 ) -> Result<(), entity::GatewayError> {
-    let service_fn =
-        hyper::service::service_fn(move |request: http::Request<hyper::body::Incoming>| {
-            log::info!("request = {:?}", &request);
+    let service_fn = hyper::service::service_fn(
+        move |incoming_request: http::Request<hyper::body::Incoming>| {
+            log::info!("incoming_request = {:?}", &incoming_request);
 
             let throttle_status: http::StatusCode = throttle::run(
                 &throttle_pool_clone.lock().unwrap().get().unwrap(),
-                request.headers(),
+                incoming_request.headers(),
             )
             .unwrap();
             log::info!("throttle_status = {:?}", throttle_status);
 
-            let (resp, addr) = route_request(request, &route_config_arr_clone);
+            let (outgoing_request, addr) = route_request(incoming_request, &route_config_arr_clone);
 
             async move {
                 if !throttle_status.is_success() {
@@ -42,18 +42,19 @@ pub async fn run(
                     }
                 });
 
-                let response_body: http::Response<hyper::body::Incoming> = sender
-                    .send_request(resp)
+                let incoming_response: http::Response<hyper::body::Incoming> = sender
+                    .send_request(outgoing_request)
                     .await
-                    .expect("Failed to send a request");
-                let response: Result<http::Response<entity::GatewayBody>, http::Error> =
+                    .expect("Failed to send a request!");
+                let outgoing_response: Result<http::Response<entity::GatewayBody>, http::Error> =
                     http::Response::builder()
                         .status(http::StatusCode::OK)
-                        .body(entity::GatewayBody::Incoming(response_body.into_body()));
-                log::info!("response = {:?}", response);
-                response
+                        .body(entity::GatewayBody::Incoming(incoming_response.into_body()));
+                log::info!("outgoing_response = {:?}", outgoing_response);
+                outgoing_response
             }
-        });
+        },
+    );
 
     match hyper::server::conn::http1::Builder::new()
         .serve_connection(gateway_stream, service_fn)
@@ -68,12 +69,13 @@ pub async fn run(
 }
 
 pub fn route_request(
-    request: http::Request<hyper::body::Incoming>,
+    incoming_request: http::Request<hyper::body::Incoming>,
     route_config_arr: &[config::Route],
 ) -> (http::Request<hyper::body::Incoming>, SocketAddr) {
-    log::info!("request = {:?}", &request);
+    log::info!("incoming_request = {:?}", &incoming_request);
 
-    let route_config: config::Route = config::get_route(request.uri().path(), route_config_arr)
+    let route_config: config::Route =
+        config::get_route(incoming_request.uri().path(), route_config_arr)
             .expect("Failed to get the routing configuration for the request!")
             .clone();
 
@@ -84,7 +86,7 @@ pub fn route_request(
     log::info!("Routed to {}://{:?}", route_config.scheme, &route_addr);
 
     (
-        build_request(request, route_config).expect("Failed to create a routing request!"),
+        build_request(incoming_request, route_config).expect("Failed to create a routing request!"),
         route_addr,
     )
 }
