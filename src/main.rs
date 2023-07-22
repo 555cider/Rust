@@ -8,6 +8,7 @@ mod entity;
 mod logger;
 mod route;
 mod throttle;
+mod trace;
 
 #[tokio::main]
 async fn main() {

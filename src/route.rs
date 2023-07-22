@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{config, entity, throttle};
+use crate::{config, entity, throttle, trace};
 
 pub async fn run(
     gateway_stream: tokio::net::TcpStream,
@@ -74,8 +74,8 @@ pub fn route_request(
     log::info!("request = {:?}", &request);
 
     let route_config: config::Route = config::get_route(request.uri().path(), route_config_arr)
-        .expect("Failed to get the routing configuration for the request!")
-        .clone();
+            .expect("Failed to get the routing configuration for the request!")
+            .clone();
 
     let route_addr: SocketAddr = SocketAddr::from((
         route_config.authority.host.parse::<IpAddr>().unwrap(),
@@ -100,11 +100,17 @@ pub fn build_request(
         request.uri().path()
     );
 
+    let traceparent: trace::Traceparent =
+        trace::extract(request.headers()).expect("Failed to extract trace context!");
+
     let mut request_builder: http::request::Builder = hyper::Request::builder()
         .uri(uri)
         .method(request.method())
         .version(request.version());
     *request_builder.headers_mut().unwrap() = request.headers().clone();
-
+    request_builder
+        .headers_mut()
+        .unwrap()
+        .append("traceparent", traceparent.as_headervalue());
     request_builder.body(request.into_body())
 }
