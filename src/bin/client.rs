@@ -2,11 +2,10 @@ use futures_util::{future, pin_mut, StreamExt};
 use std::{env, error::Error};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
-use yobara_websocket::logger;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    logger::init_logger();
+    log4rs::init_file("log4rs_client.yaml", Default::default()).unwrap();
     log::info!("Initialized the logger");
 
     let addr = env::args()

@@ -9,14 +9,13 @@ use std::{
 };
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::tungstenite::protocol::Message;
-use yobara_websocket::logger;
 
 type Tx = UnboundedSender<Message>;
 type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    logger::init_logger();
+    log4rs::init_file("log4rs_server.yaml", Default::default()).unwrap();
     log::info!("Initialized the logger");
 
     let addr: String = env::args().nth(1).unwrap_or(String::from("127.0.0.1:8080"));
