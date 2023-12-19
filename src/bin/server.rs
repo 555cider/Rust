@@ -1,5 +1,6 @@
-use futures_channel::mpsc::{unbounded, UnboundedSender};
+use futures_channel::mpsc;
 use futures_util::{future, pin_mut, StreamExt, TryStreamExt};
+use log::info;
 use std::{
     collections::HashMap,
     env,
@@ -7,20 +8,20 @@ use std::{
     net::SocketAddr,
     sync::{Arc, Mutex},
 };
-use tokio::net::{TcpListener, TcpStream};
-use tokio_tungstenite::tungstenite::protocol::Message;
+use tokio::net;
+use tokio_tungstenite::{accept_async, tungstenite};
 
-type Tx = UnboundedSender<Message>;
+type Tx = mpsc::UnboundedSender<tungstenite::protocol::Message>;
 type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     log4rs::init_file("log4rs_server.yaml", Default::default()).unwrap();
-    log::info!("Initialized the logger");
+    info!("Initialized the logger");
 
     let addr: String = env::args().nth(1).unwrap_or(String::from("127.0.0.1:8080"));
-    let listener: TcpListener = TcpListener::bind(&addr).await?;
-    log::info!("Listening on: {}", addr);
+    let listener = net::TcpListener::bind(&addr).await?;
+    info!("Listening on: {}", addr);
 
     // Spawn the handling of each connection in a separate task.
     let state = PeerMap::new(Mutex::new(HashMap::new()));
@@ -31,22 +32,22 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: SocketAddr) {
-    log::info!("Incoming TCP connection from: {}", addr);
+async fn handle_connection(peer_map: PeerMap, raw_stream: net::TcpStream, addr: SocketAddr) {
+    info!("Incoming TCP connection from: {}", addr);
 
     // WebSocket handshake
-    let ws_stream = tokio_tungstenite::accept_async(raw_stream)
+    let ws_stream = accept_async(raw_stream)
         .await
         .expect("Error during the websocket handshake occurred");
-    log::info!("WebSocket connection established: {}", addr);
+    info!("WebSocket connection established: {}", addr);
 
     // Insert the write part of this peer to the peer map.
-    let (tx, rx) = unbounded();
+    let (tx, rx) = mpsc::unbounded();
     peer_map.lock().unwrap().insert(addr, tx);
 
     let (outgoing, incoming) = ws_stream.split();
     let broadcast_incoming = incoming.try_for_each(|msg| {
-        log::info!("{}: {}", addr, msg.to_text().unwrap());
+        info!("{}: {}", addr, msg.to_text().unwrap());
         let peers = peer_map.lock().unwrap();
         let peers = peers.clone();
 
@@ -64,6 +65,6 @@ async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: Socke
     pin_mut!(broadcast_incoming, receive_from_others);
     future::select(broadcast_incoming, receive_from_others).await;
 
-    log::info!("Disconnected: {}", &addr);
+    info!("Disconnected: {}", &addr);
     peer_map.lock().unwrap().remove(&addr);
 }
