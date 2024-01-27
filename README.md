@@ -20,9 +20,9 @@
 
 ### How to run
 ```bash
-cargo run -bin server
+cargo run --bin server
 ```
 or
 ```bash
-cargo run -bin server -c {server cerificate path} -k {server key path}
+cargo run --bin server -- -c {server cerificate path} -k {server key path}
 ```
