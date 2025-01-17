@@ -1,0 +1,27 @@
+[package]
+name = "yobara"
+version = "0.1.0"
+description = "Test implementation of the WebTransport (over HTTP3) protocol"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.75"
+base64 = "0.21.5"
+bytes = "1.5.0"
+clap = { version = "4.4.6", features = ["derive"] }
+h3 = { path = "./hyperium/h3" }
+h3-quinn = { path = "./hyperium/h3-quinn" }
+h3-webtransport = { path = "./hyperium/h3-webtransport" }
+http = "0.2.11"
+quinn = "0.10.2"
+rcgen = "0.11.3"
+rustls = { version = "0.21.8", features = ["dangerous_configuration", "quic"] }
+rustls-pemfile = "1.0.3"
+sec-http3 = "0.1.2"
+time = "0.3.21"
+tokio = { version = "1.28.1", default-features = false, features = ["full"] }
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
+
+[[bin]]
+name = "server"
