@@ -1,5 +1,5 @@
 [package]
-name = "yobara"
+name = "hyper-webtransport"
 version = "0.1.0"
 description = "Test implementation of the WebTransport (over HTTP3) protocol"
 edition = "2021"

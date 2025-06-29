@@ -1,5 +1,5 @@
 [package]
-name = "yobara-websocket"
+name = "tokio-websocket"
 version = "0.1.0"
 edition = "2021"
 
