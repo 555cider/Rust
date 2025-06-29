@@ -1,0 +1,57 @@
+[package]
+name = "admin-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Web framework
+axum = { version = "0.8.4", features = ["tokio", "json", "macros"] }
+axum-extra = { version = "0.10.0", features = ["typed-header"] }
+tower-http = { version = "0.6.6", features = ["cors", "fs", "request-id", "sensitive-headers", "trace", "util"] }
+tower = { version = "0.5.2", features = ["util"] }
+http = "1.1.0"
+
+# Async runtime
+tokio = { version = "1.45.1", features = ["rt-multi-thread", "signal", "time", "fs", "macros"] }
+async-trait = "0.1.88"
+
+# Database
+sqlx = { version = "0.8.6", features = [
+    "runtime-tokio",
+    "sqlite",
+    "migrate",
+    "chrono",
+] }
+
+# Templating
+tera = "1.20.0"
+
+# Serialization
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = { version = "1.0.140", features = ["preserve_order"] }
+serde_with = { version = "3.8.0", features = ["macros"] }
+
+# Authentication & Security
+bcrypt = "0.17.0"
+jsonwebtoken = "9.3.1"
+cookie = "0.18.1"
+uuid = { version = "1.17.0", features = ["v4"] }
+
+# Date and time
+chrono = { version = "0.4.41", features = ["serde"] }
+time = { version = "0.3.41", features = ["serde", "formatting", "parsing"] }
+
+# Error handling
+anyhow = "1.0.94"
+thiserror = "2.0.12"
+
+# Logging
+tracing = "0.1.41"
+tracing-appender = "0.2.3"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+
+# Configuration
+dotenvy = "0.15.7"
+
+# Validation
+validator = { version = "0.20.0", features = ["derive"] }

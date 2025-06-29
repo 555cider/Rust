@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}새 권한 추가 - Admin{% endblock %}
+
+{% block content %}
+<div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <!-- Page header -->
+        <div class="md:flex md:items-center md:justify-between">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                    권한 관리
+                </h2>
+            </div>
+            <div class="mt-4 flex md:mt-0 md:ml-4">
+                <a href="/permission"
+                   class="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <i class="fas fa-arrow-left mr-2"></i> 목록으로
+                </a>
+            </div>
+        </div>
+
+        <!-- Form container -->
+        <div class="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-medium leading-6 text-gray-900">
+                    <i class="fas fa-plus-circle mr-2 text-primary-600"></i>새 권한 추가
+                </h3>
+            </div>
+
+            <div class="px-4 py-5 sm:p-6">
+                <form id="permissionForm" class="space-y-6">
+                    <div class="space-y-6">
+                        <!-- Code field -->
+                        <div class="bg-white px-4 py-5 sm:p-6">
+                            <div class="md:grid md:grid-cols-3 md:gap-6">
+                                <div class="md:col-span-1">
+                                    <h3 class="text-lg font-medium leading-6 text-gray-900">기본 정보</h3>
+                                    <p class="mt-1 text-sm text-gray-500">권한의 기본 정보를 입력하세요.</p>
+                                </div>
+                                <div class="mt-5 md:mt-0 md:col-span-2">
+                                    <div class="space-y-6">
+                                        <div>
+                                            <label for="code" class="block text-sm font-medium text-gray-700">
+                                                권한 코드 <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text"
+                                                   id="code"
+                                                   name="code"
+                                                   required
+                                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                                                   placeholder="예: user:read"
+                                                   value="">
+                                            <p class="mt-2 text-sm text-gray-500">
+                                                권한을 식별하는 고유한 코드 (영문 소문자, 콜론, 마침표, 하이픈, 밑줄만 사용 가능)
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label for="name" class="block text-sm font-medium text-gray-700">
+                                                권한명
+                                            </label>
+                                            <div class="mt-1">
+                                                <input type="text"
+                                                       id="name"
+                                                       name="name"
+                                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                                                       placeholder="예: 사용자 읽기 권한"
+                                                       value="">
+                                                <p class="mt-2 text-sm text-gray-500">
+                                                    사용자에게 표시될 권한의 이름을 입력하세요.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form actions -->
+                    <div class="flex justify-end px-4 py-3 bg-gray-50 text-right sm:px-6 rounded-b-lg">
+                        <a href="/permission"
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            <i class="fas fa-times mr-2"></i>취소
+                        </a>
+                        <button type="submit"
+                                class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            <i class="fas fa-save mr-2"></i>저장
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('permissionForm');
+        const codeInput = document.getElementById('code');
+        const descriptionInput = document.getElementById('description');
+
+        // Form validation
+        function validateForm() {
+            let isValid = true;
+
+            // Reset error states
+            document.querySelectorAll('.is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
+
+            // Validate code (required, alphanumeric with :, ., -, _)
+            const codeRegex = /^[a-z0-9:._-]+$/;
+            if (!codeInput.value.trim()) {
+                showError(codeInput, '권한 코드는 필수 입력 항목입니다.');
+                isValid = false;
+            } else if (!codeRegex.test(codeInput.value)) {
+                showError(codeInput, '영문 소문자, 숫자, 콜론(:), 마침표(.), 하이픈(-), 밑줄(_)만 사용할 수 있습니다.');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function showError(input, message) {
+            const formGroup = input.closest('div');
+            formGroup.classList.add('has-error');
+
+            // Remove existing error message if any
+            let errorElement = formGroup.querySelector('.error-message');
+            if (!errorElement) {
+                errorElement = document.createElement('p');
+                errorElement.className = 'mt-1 text-sm text-red-600 error-message';
+                formGroup.appendChild(errorElement);
+            }
+
+            errorElement.textContent = message;
+            input.classList.add('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+            input.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+
+        // Handle form submission
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
+
+            const formData = {
+                code: codeInput.value.trim(),
+                description: descriptionInput.value.trim()
+            };
+
+            try {
+                // Show loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>처리 중...';
+
+                // Send request to server
+                const response = await fetch('/permission', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Show success message
+                    await Swal.fire({
+                        title: '성공!',
+                        text: '권한이 성공적으로 저장되었습니다.',
+                        icon: 'success',
+                        confirmButtonText: '확인'
+                    });
+
+                    // Redirect to permissions list
+                    window.location.href = '/permission';
+                } else {
+                    throw new Error(result.message || '요청을 처리하는 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                await Swal.fire({
+                    title: '오류 발생',
+                    text: error.message || '권한을 저장하는 중 오류가 발생했습니다.',
+                    icon: 'error',
+                    confirmButtonText: '확인'
+                });
+            } finally {
+                // Reset button state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>저장';
+                }
+            }
+        });
+
+        // Real-time validation for code field
+        codeInput.addEventListener('input', function () {
+            const formGroup = this.closest('div');
+            formGroup.classList.remove('has-error');
+            this.classList.remove('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+
+            const errorElement = formGroup.querySelector('.error-message');
+            if (errorElement) {
+                errorElement.remove();
+            }
+        });
+    });
+</script>
+{% endblock %}

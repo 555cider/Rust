@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Error</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .debug-section {
+            margin-bottom: 2rem;
+        }
+
+        .debug-title {
+            font-weight: 600;
+            color: #4B5563;
+            border-bottom: 1px solid #E5E7EB;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+<div class="max-w-6xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="bg-red-600 text-white p-4">
+        <h1 class="text-2xl font-bold">Template Rendering Error</h1>
+    </div>
+
+    <div class="p-6 space-y-8">
+        <!-- Error Message -->
+        <div class="debug-section">
+            <h2 class="debug-title">Error Details</h2>
+            <div class="p-4 bg-red-50 border-l-4 border-red-500">
+                <p class="font-medium">{{ error_message | default(value="An unknown error occurred") }}</p>
+            </div>
+        </div>
+
+        <!-- Template Information -->
+        <div class="debug-section">
+            <h2 class="debug-title">Template Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-1">Requested Template:</h3>
+                    <code class="block bg-gray-100 p-2 rounded">{{ template_path | default(value="[Not specified]")
+                        }}</code>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-1">Base Template:</h3>
+                    <code class="block bg-gray-100 p-2 rounded">base.html ({% if base_template_exists %}Found{% else
+                        %}Not Found{% endif %})</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Templates -->
+        {% if available_templates %}
+        <div class="debug-section">
+            <h2 class="debug-title">Available Templates ({{ available_templates | length }})</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {% for tpl in available_templates %}
+                <div class="bg-gray-50 p-2 rounded border {% if tpl == template_path %}border-green-500 bg-green-50{% else %}border-gray-200{% endif %}">
+                    <code class="text-sm">{{ tpl }}</code>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Template Context -->
+        {% if context %}
+        <div class="debug-section">
+            <h2 class="debug-title">Template Context</h2>
+            <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                <pre class="text-sm">{{ context | json_encode(pretty=true) | safe }}</pre>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Debug Info -->
+        <div class="debug-section">
+            <h2 class="debug-title">Debug Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-1">Current Time:</h3>
+                    <p>{{ now() | date(format="%Y-%m-%d %H:%M:%S") }}</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-1">Template Directory:</h3>
+                    <p>static/templates/</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+        <div class="flex flex-col sm:flex-row justify-between items-center">
+            <p class="text-sm text-gray-500 mb-2 sm:mb-0">
+                This is a debug view. In production, show a user-friendly error page.
+            </p>
+            <a href="/" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                Return to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}활동 로그{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">활동 로그</h1>
+
+    {% if history %}
+    <div class="mt-4 overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">사용자</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">엔티티</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">일시</th>
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+            {% for item in history %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    {% if item.username %}
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10">
+                                    <span class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gray-500">
+                                        <span class="text-sm font-medium leading-none text-white">{{ item.username|first|upper }}</span>
+                                    </span>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">{{ item.username }}</div>
+                            <div class="text-sm text-gray-500">{{ item.user_id | default(value="") }}</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <span class="text-sm text-gray-500">시스템</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if item.action == 'create' %}bg-green-100 text-green-800
+                                {% elif item.action == 'update' %}bg-blue-100 text-blue-800
+                                {% elif item.action == 'delete' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {% if item.action == 'create' %}생성
+                                {% elif item.action == 'update' %}수정
+                                {% elif item.action == 'delete' %}삭제
+                                {% else %}{{ item.action }}{% endif %}
+                            </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ item.entity_type }}: {{ item.entity_id }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {% set time_str = item.created_at | date(format="%Y. %-m. %-d. %p %-I:%M:%S KST") %}
+                    {{ time_str | replace(from="AM", to="오전") | replace(from="PM", to="오후") }}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Simple pagination -->
+    <div class="mt-4 flex items-center justify-between">
+        <div>
+            <p class="text-sm text-gray-700">
+                페이지 {{ page }} / {{ total_pages }} (총 {{ total }}개 항목)
+            </p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="?page=1"
+               class="px-3 py-1 border rounded {% if page <= 1 %}bg-gray-100 text-gray-400 cursor-not-allowed{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}">
+                처음
+            </a>
+            <a href="?page={{ page - 1 }}"
+               class="px-3 py-1 border rounded {% if page <= 1 %}bg-gray-100 text-gray-400 cursor-not-allowed{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}">
+                이전
+            </a>
+            <a href="?page={{ page + 1 }}"
+               class="px-3 py-1 border rounded {% if page >= total_pages %}bg-gray-100 text-gray-400 cursor-not-allowed{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}">
+                다음
+            </a>
+            <a href="?page={{ total_pages }}"
+               class="px-3 py-1 border rounded {% if page >= total_pages %}bg-gray-100 text-gray-400 cursor-not-allowed{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}">
+                마지막
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title | default(value="사용자 유형 관리") }}{% endblock title %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">사용자 유형 관리</h1>
+        <a href="/user-types/create"
+           class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition duration-200">
+            + 새 사용자 유형
+        </a>
+    </div>
+
+    <!-- User Types Table -->
+    <div id="userTypeList">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            코드
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            이름
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            설명
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            상태
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            작업
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    {% if not user_types or user_types | length == 0 %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                {% if not user_types %}
+                                    사용자 유형을 로드할 수 없습니다.
+                                {% else %}
+                                    등록된 사용자 유형이 없습니다.
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                            {% for user_type in user_types %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">{{ user_type.code | default(value="-") }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ user_type.name | default(value="-") }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">{{ user_type.description | default(value="-") }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if user_type.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {% if user_type.is_active %}활성{% else %}비활성{% endif %}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a href="/user-types/edit/{{ user_type.id | default(value=0) }}"
+                                    class="text-blue-600 hover:text-blue-900 mr-4">수정</a>
+                                    <button
+                                            hx-delete="/user-types/{{ user_type.id | default(value=0) }}"
+                                            hx-confirm="이 사용자 유형을 삭제하시겠습니까?"
+                                            hx-target="body"
+                                            class="text-red-600 hover:text-red-900">
+                                        삭제
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

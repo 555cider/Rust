@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-gray-50">
+<div class="min-h-full">
+    <!-- Off-canvas menu for mobile -->
+    <nav class="bg-primary-600">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="border-b border-primary-300 border-opacity-25 bg-primary-600 lg:border-none">
+                <div class="flex h-16 items-center justify-between px-4 sm:px-0 lg:px-0">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <a href="/dashboard"
+                               class="text-white text-xl font-bold hover:text-gray-200 transition-colors">
+                                Admin Dashboard
+                            </a>
+                        </div>
+                        {% if true %}
+                        <div class="hidden md:block">
+                            <div class="ml-10 flex items-baseline space-x-4">
+                                <a href="/dashboard"
+                                   class="{% if active_page == 'dashboard' %}bg-primary-700 text-white{% else %}text-white hover:bg-primary-500 hover:bg-opacity-75{% endif %} rounded-md px-3 py-2 text-sm font-medium">
+                                    대시보드
+                                </a>
+                                {% if current_user.user_type_id == 1 %}
+                                <a href="/user"
+                                   class="{% if active_page == 'users' %}bg-primary-700 text-white{% else %}text-white hover:bg-primary-500 hover:bg-opacity-75{% endif %} rounded-md px-3 py-2 text-sm font-medium">
+                                    사용자 관리
+                                </a>
+                                <a href="/permission"
+                                   class="{% if active_page == 'permissions' %}bg-primary-700 text-white{% else %}text-white hover:bg-primary-500 hover:bg-opacity-75{% endif %} rounded-md px-3 py-2 text-sm font-medium">
+                                    권한 관리
+                                </a>
+                                <a href="/user-types"
+                                   class="{% if active_page == 'user_types' %}bg-primary-700 text-white{% else %}text-white hover:bg-primary-500 hover:bg-opacity-75{% endif %} rounded-md px-3 py-2 text-sm font-medium">
+                                    사용자 유형 관리
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <!-- Mobile menu button -->
+                    <div class="-mr-2 flex md:hidden">
+                        <button type="button" id="mobile-menu-button"
+                                class="inline-flex items-center justify-center rounded-md p-2 text-white hover:bg-primary-500 hover:bg-opacity-75 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+                                aria-controls="mobile-menu" aria-expanded="false">
+                            <span class="sr-only">메뉴 열기</span>
+                            <!-- Icon when menu is closed -->
+                            <svg id="menu-icon-open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                 stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                            </svg>
+                            <!-- Icon when menu is open -->
+                            <svg id="menu-icon-close" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                 stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-4 flex items-center md:ml-6">
+                            <div class="relative ml-3">
+                                <div>
+                                    <button type="button"
+                                            class="flex max-w-xs items-center rounded-full bg-primary-600 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+                                            id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                        <span class="sr-only">Open user menu</span>
+                                        <div class="h-8 w-8 rounded-full bg-primary-300 flex items-center justify-center">
+                                            <i class="fas fa-user text-primary-700"></i>
+                                        </div>
+                                        <span class="ml-2 mr-1 text-white">
+                                                    {% if current_user %}{{ current_user.username }}{% else %}Guest{% endif %}
+                                                </span>
+                                        <i class="fas fa-chevron-down text-xs ml-1"></i>
+                                    </button>
+                                </div>
+                                <div class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden"
+                                     role="menu" aria-orientation="vertical" id="user-dropdown">
+                                    {% if current_user %}
+                                    <a href="/profile"
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                       role="menuitem">
+                                        <i class="fas fa-user-circle mr-2"></i>프로필
+                                    </a>
+                                    <a href="/history"
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                       role="menuitem">
+                                        <i class="fas fa-history mr-2"></i>활동 로그
+                                    </a>
+                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <a href="/settings"
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                       role="menuitem">
+                                        <i class="fas fa-cog mr-2"></i>설정
+                                    </a>
+                                    <a href="/auth/logout"
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                       role="menuitem">로그아웃</a>
+                                    {% else %}
+                                    <a href="/auth/login"
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                       role="menuitem">로그인</a>
+                                    <a href="/auth/register"
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                       role="menuitem">회원가입</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu, show/hide based on menu state. -->
+        <div class="md:hidden hidden bg-primary-600" id="mobile-menu">
+            <div class="space-y-1 px-2 pt-2 pb-3 sm:px-3">
+                {% if current_user %}
+                <a href="/dashboard"
+                   class="{% if active_page == 'dashboard' %}bg-primary-700 text-white{% else %}text-white hover:bg-primary-500 hover:bg-opacity-75{% endif %} block rounded-md px-3 py-2 text-base font-medium">
+                    대시보드
+                </a>
+                {% if current_user.user_type_id == 1 %}
+                <a href="/user"
+                   class="{% if active_page == 'users' %}bg-primary-700 text-white{% else %}text-white hover:bg-primary-500 hover:bg-opacity-75{% endif %} block rounded-md px-3 py-2 text-base font-medium">
+                    사용자 관리
+                </a>
+                <a href="/permission"
+                   class="{% if active_page == 'permissions' %}bg-primary-700 text-white{% else %}text-white hover:bg-primary-500 hover:bg-opacity-75{% endif %} block rounded-md px-3 py-2 text-base font-medium">
+                    권한 관리
+                </a>
+                <a href="/user-types"
+                   class="{% if active_page == 'user_types' %}bg-primary-700 text-white{% else %}text-white hover:bg-primary-500 hover:bg-opacity-75{% endif %} block rounded-md px-3 py-2 text-base font-medium">
+                    사용자 유형 관리
+                </a>
+                {% endif %}
+                {% else %}
+                <a href="/auth/login"
+                   class="text-white hover:bg-primary-500 hover:bg-opacity-75 block rounded-md px-3 py-2 text-base font-medium">
+                    로그인
+                </a>
+                <a href="/auth/register"
+                   class="text-white hover:bg-primary-500 hover:bg-opacity-75 block rounded-md px-3 py-2 text-base font-medium">
+                    회원가입
+                </a>
+                {% endif %}
+            </div>
+            {% if current_user %}
+            <div class="border-t border-primary-700 pt-4 pb-3">
+                <div class="flex items-center px-5">
+                    <div class="h-10 w-10 flex-shrink-0 rounded-full bg-primary-300 flex items-center justify-center">
+                        <i class="fas fa-user text-primary-700"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-base font-medium text-white">{{ current_user.username }}</div>
+                        <div class="text-sm font-medium text-primary-300">{{ current_user.username }}</div>
+                    </div>
+                </div>
+                <div class="mt-3 space-y-1 px-2">
+                    <a href="/profile"
+                       class="block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-500 hover:bg-opacity-75">프로필</a>
+                    <a href="/auth/logout"
+                       class="block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-500 hover:bg-opacity-75">로그아웃</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="border-t border-primary-700 pt-4 pb-3">
+                <div class="space-y-1 px-2">
+                    <a href="/auth/login"
+                       class="block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-500 hover:bg-opacity-75">로그인</a>
+                    <a href="/auth/register"
+                       class="block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-primary-500 hover:bg-opacity-75">회원가입</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="mt-4">
+        <div class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+            <div class="rounded-lg bg-white py-6 shadow">
+                <div class="rounded-lg">
+                    {% block content %}
+                    <!-- Content will be inserted here by child templates -->
+                    {% endblock content %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function () {
+        // Mobile menu toggle
+        const menuButton = document.getElementById('mobile-menu-button');
+        const menu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon-open');
+        const closeIcon = document.getElementById('menu-icon-close');
+
+        if (menuButton && menu && menuIcon && closeIcon) {
+            menuButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const isOpening = menu.classList.toggle('hidden');
+                menuIcon.classList.toggle('hidden', !isOpening);
+                closeIcon.classList.toggle('hidden', isOpening);
+                menuButton.setAttribute('aria-expanded', isOpening);
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!menuButton.contains(e.target) && !menu.contains(e.target)) {
+                    menu.classList.add('hidden');
+                    menuIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                    menuButton.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+
+        // User dropdown toggle
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenu = document.getElementById('user-dropdown');
+
+        if (userMenuButton && userMenu) {
+            userMenuButton.addEventListener('click', function (e) {
+                e.stopPropagation();
+                userMenu.classList.toggle('hidden');
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', function () {
+                userMenu.classList.add('hidden');
+            });
+
+            // Prevent dropdown from closing when clicking inside
+            userMenu.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+        }
+    });
+
+    // API Client
+    window.apiClient = {
+        async request(url, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                ...options.headers
+            };
+
+            // Add CSRF token if available
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (csrfToken) {
+                headers['X-CSRF-Token'] = csrfToken;
+            }
+
+            try {
+                const response = await fetch(url, {
+                    credentials: 'same-origin',
+                    ...options,
+                    headers
+                });
+
+                if (!response.ok) {
+                    console.error(`API Error (${response.status}):`, response);
+                }
+
+
+                // Handle 401 Unauthorized
+                if (response.status === 401) {
+                    window.location.href = '/auth/login';
+                    return null;
+                }
+
+
+                // Handle other error statuses
+                if (!response.ok) {
+                    const error = await response.text();
+                    console.error('API Error:', error);
+                    throw new Error(error || 'Request failed');
+                }
+
+
+                // Handle empty responses
+                const text = await response.text();
+                return text ? JSON.parse(text) : null;
+            } catch (error) {
+                console.error('API request failed:', error);
+                throw error;
+            }
+        },
+
+        // Convenience methods
+        get(url, options = {}) {
+            return this.request(url, {...options, method: 'GET'});
+        },
+
+        post(url, data, options = {}) {
+            return this.request(url, {
+                ...options,
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+        },
+
+        put(url, data, options = {}) {
+            return this.request(url, {
+                ...options,
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+        },
+
+        delete(url, options = {}) {
+            return this.request(url, {...options, method: 'DELETE'});
+        }
+    };
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,102 @@
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<form action="/api/v1/user" method="post">
+    <h2>회원가입</h2>
+    {# Error message placeholder #}
+    {% if error %}
+    <div class="error-message">{{ error }}</div>
+    {% endif %}
+    {# Success message #}
+    {% if success %}
+    <div style="text-align:center;">
+        <p>회원가입이 완료되었습니다.</p>
+        <a href="/auth/login">로그인 화면으로 이동</a>
+    </div>
+    {% else %}
+    <label for="username">아이디:</label>
+    <input type="text" id="username" name="username" placeholder="아이디" required/>
+    <label for="password">비밀번호:</label>
+    <input type="password" id="password" name="password" placeholder="비밀번호" required/>
+    <label for="user_type_id">유형ID:</label>
+    <input type="number" id="user_type_id" name="user_type_id" placeholder="유형ID" min="1" required/>
+    <label for="is_active"><input type="hidden" name="is_active" value="true"/> 활성화</label>
+    <input type="checkbox" id="is_active" checked disabled/> 활성화
+    <button type="submit">회원가입</button>
+    {% endif %}
+</form>
+</body>

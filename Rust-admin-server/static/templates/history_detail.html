@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <a href="/history" class="text-blue-500 hover:underline flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            Back to History
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-800">History #{{ id }}</h1>
+        </div>
+
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h2>
+                    <dl class="space-y-4">
+                        <div class="bg-gray-50 px-4 py-3 rounded">
+                            <dt class="text-sm font-medium text-gray-500">Action</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <span class="badge badge-success">Created</span>
+                            </dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 rounded">
+                            <dt class="text-sm font-medium text-gray-500">User</dt>
+                            <dd class="mt-1 text-sm text-gray-900">admin@example.com</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 rounded">
+                            <dt class="text-sm font-medium text-gray-500">IP Address</dt>
+                            <dd class="mt-1 text-sm text-gray-900">192.168.1.1</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 rounded">
+                            <dt class="text-sm font-medium text-gray-500">Timestamp</dt>
+                            <dd class="mt-1 text-sm text-gray-900">2023-05-15 14:30:00 UTC</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <div>
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Entity Information</h2>
+                    <dl class="space-y-4">
+                        <div class="bg-gray-50 px-4 py-3 rounded">
+                            <dt class="text-sm font-medium text-gray-500">Entity Type</dt>
+                            <dd class="mt-1 text-sm text-gray-900">User</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 rounded">
+                            <dt class="text-sm font-medium text-gray-500">Entity ID</dt>
+                            <dd class="mt-1 text-sm text-gray-900">5</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 rounded">
+                            <dt class="text-sm font-medium text-gray-500">Changes</dt>
+                            <dd class="mt-1">
+                                <pre class="text-xs p-2 bg-gray-100 rounded overflow-auto max-h-40">
+{
+  "email": "new.user@example.com",
+  "name": "New User",
+  "role": "user"
+}
+                                </pre>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
